@@ -1,0 +1,682 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/*
+ * client.java
+ *
+ * Created on 21 mars 2014, 14:42:07
+ */
+
+package graphique;
+import java.sql.*;
+
+import net.proteanit.sql.DbUtils ;
+import javax.swing.* ;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
+/**
+ *
+ * @author zied_2
+ */
+public class Etudiant extends javax.swing.JFrame {
+    Connection conn =connexion_bd.connexion();
+ResultSet rs ;
+    /** Creates new form client */
+    public Etudiant()
+    {
+       initComponents();
+       update_etudiant();
+       groupe();
+       ajout_etudiant();
+       chercher_etudiant();
+       modifier_etudiant();
+       annuler();
+       conn =connexion_bd.connexion();
+       this.setTitle("Gestionnaire Etudiants");
+    }
+    
+     private void update_etudiant()
+    {
+    try{
+	    
+	    		PreparedStatement pstmt1 = conn.prepareStatement("select * from etudiant ");
+
+          rs = pstmt1.executeQuery();
+
+etudiant_table.setModel(DbUtils.resultSetToTableModel(rs));
+
+	    }
+	    	catch(Exception c){
+	    		System.out.println(c.getMessage());
+
+	    	}
+    }
+      private void groupe()
+    {
+        try{
+	   
+	    		PreparedStatement pstmt1 = conn.prepareStatement("select nom_groupe from groupe");
+
+          rs = pstmt1.executeQuery();
+
+while(rs.next())
+{
+    String nom_group=rs.getString("nom_groupe");
+    groupe.addItem(nom_group);
+}
+
+	    }
+	    	catch(Exception c){
+	    		System.out.println(c.getMessage());
+
+	    	}
+    }
+      private void ajout_etudiant()
+      {
+try{
+
+	    		PreparedStatement pstmt1 = conn.prepareStatement("insert into etudiant (cin_etudiant,groupe,nom,prenom,date_naiss,niveau,mail,num_tel) values (?,?,?,?,?,?,?,?)");
+String form=groupe.getSelectedItem().toString();
+
+         pstmt1.setInt(1,Integer.parseInt(cin.getText()));
+          pstmt1.setString(2,form);
+            pstmt1.setString(3,nom.getText());
+            pstmt1.setString(4,prenom.getText());
+      pstmt1.setString(5,((JTextField)datenaiss.getDateEditor().getUiComponent()).getText());
+      pstmt1.setString(6,niveau.getText());
+      pstmt1.setString(7,mail.getText());
+      pstmt1.setInt(8,Integer.parseInt(num_tel.getText()));
+
+
+         int resultat = pstmt1.executeUpdate();
+
+
+
+	    		 JOptionPane.showMessageDialog(null,"Etudiant enregistrer");
+	    }
+	    	catch(Exception c){
+	    		System.out.println(c.getMessage());
+
+	    	}
+         update_etudiant();
+         annuler();
+      }
+      private void chercher_etudiant()
+      {
+  try{
+
+
+           int id ;
+           id=Integer.parseInt(rech.getText());
+
+	    		PreparedStatement pstmt1 = conn.prepareStatement("select * from etudiant where cin_etudiant= '"+id+"' ");
+
+          rs = pstmt1.executeQuery();
+
+
+if (rs.next())
+{
+
+int cine=rs.getInt("cin_etudiant") ;
+cin.setText(Integer.toString(cine));
+Date d1=rs.getDate("date_naiss");
+
+String nome=rs.getString("nom");
+String prenome=rs.getString("prenom");
+String niv=rs.getString("niveau");
+String maile=rs.getString("mail");
+int tel=rs.getInt("num_tel");
+num_tel.setText(Integer.toString(tel));
+nom.setText(nome);
+prenom.setText(prenome);
+mail.setText(maile);
+niveau.setText(niv);
+datenaiss.setDate(d1);
+
+}
+else
+{
+ JOptionPane.showMessageDialog(null,"Etudiant n'existe pas");
+}
+
+	    }
+	    	catch(Exception c){
+	    		System.out.println(c.getMessage());
+
+	    	}
+      }
+      private void modifier_etudiant()
+      {
+  try{       int row=etudiant_table.getSelectedRow();
+ String ID=(etudiant_table.getModel().getValueAt(row, 0).toString());
+           int id ;
+           id=Integer.parseInt(ID);
+String form=groupe.getSelectedItem().toString();
+
+int cine=Integer.parseInt(cin.getText());
+int tel=Integer.parseInt(num_tel.getText());
+String d1=((JTextField)datenaiss.getDateEditor().getUiComponent()).getText();
+String nome=nom.getText();
+String prenome=prenom.getText();
+String maile=mail.getText();
+String niv=niveau.getText();
+
+
+        PreparedStatement pstmt1 = conn.prepareStatement("update  etudiant set cin_etudiant='"+cine+"',groupe='"+form+"' , date_naiss='"+d1+"',nom='"+nome+"',prenom='"+prenome+"',mail='"+maile+"',num_tel='"+tel+"',niveau='"+niv+"' where cin_etudiant= '"+id+"' ");
+
+
+
+
+         int resultat = pstmt1.executeUpdate();
+
+
+	    		 JOptionPane.showMessageDialog(null,"mise à jour effectuer");
+
+
+
+
+	    }
+	    	catch(Exception c){
+	    		System.out.println(c.getMessage());
+
+	    	}
+         update_etudiant ();
+annuler();
+      }
+      private void annuler()
+      {
+cin.setText("");
+num_tel.setText("");
+prenom.setText("");
+nom.setText("");
+mail.setText("");
+niveau.setText("");
+datenaiss.setDate(null);
+rech.setText("Recherche par cin");
+      }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        cin = new javax.swing.JTextField();
+        nom = new javax.swing.JTextField();
+        prenom = new javax.swing.JTextField();
+        niveau = new javax.swing.JTextField();
+        num_tel = new javax.swing.JTextField();
+        mail = new javax.swing.JTextField();
+        groupe = new javax.swing.JComboBox();
+        datenaiss = new com.toedter.calendar.JDateChooser();
+        panel1 = new java.awt.Panel();
+        jButton3 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        rech = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        etudiant_table = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(1070, 650));
+        setResizable(false);
+        getContentPane().setLayout(null);
+
+        cin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cinMouseClicked(evt);
+            }
+        });
+        cin.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                cinKeyTyped(evt);
+            }
+        });
+        getContentPane().add(cin);
+        cin.setBounds(860, 130, 160, 40);
+
+        nom.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nomMouseClicked(evt);
+            }
+        });
+        nom.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                nomKeyTyped(evt);
+            }
+        });
+        getContentPane().add(nom);
+        nom.setBounds(860, 230, 160, 40);
+
+        prenom.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                prenomMouseClicked(evt);
+            }
+        });
+        prenom.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                prenomKeyTyped(evt);
+            }
+        });
+        getContentPane().add(prenom);
+        prenom.setBounds(860, 280, 160, 40);
+
+        niveau.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                niveauMouseClicked(evt);
+            }
+        });
+        niveau.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                niveauKeyTyped(evt);
+            }
+        });
+        getContentPane().add(niveau);
+        niveau.setBounds(860, 380, 160, 40);
+
+        num_tel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                num_telMouseClicked(evt);
+            }
+        });
+        num_tel.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                num_telKeyTyped(evt);
+            }
+        });
+        getContentPane().add(num_tel);
+        num_tel.setBounds(860, 480, 160, 40);
+
+        mail.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                mailMouseClicked(evt);
+            }
+        });
+        getContentPane().add(mail);
+        mail.setBounds(860, 430, 160, 40);
+
+        getContentPane().add(groupe);
+        groupe.setBounds(860, 180, 160, 40);
+
+        datenaiss.setDateFormatString("yyyy-MM-dd");
+        getContentPane().add(datenaiss);
+        datenaiss.setBounds(860, 330, 160, 40);
+
+        panel1.setBackground(new java.awt.Color(255, 255, 255));
+        panel1.setLayout(null);
+
+        jButton3.setBackground(new java.awt.Color(204, 204, 255));
+        jButton3.setForeground(new java.awt.Color(255, 255, 255));
+        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/supprimer-icone-4878-32.png"))); // NOI18N
+        jButton3.setText("supprimer");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton3MouseClicked(evt);
+            }
+        });
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        panel1.add(jButton3);
+        jButton3.setBounds(30, 360, 150, 50);
+
+        jButton5.setBackground(new java.awt.Color(204, 204, 255));
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/kedit-icone-8843-32.png"))); // NOI18N
+        jButton5.setText("modifier");
+        jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton5MouseClicked(evt);
+            }
+        });
+        panel1.add(jButton5);
+        jButton5.setBounds(210, 360, 150, 50);
+
+        jButton1.setBackground(new java.awt.Color(204, 204, 255));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/ajouter-crayon-icone-4828-32.png"))); // NOI18N
+        jButton1.setText("Ajouter");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
+        panel1.add(jButton1);
+        jButton1.setBounds(380, 360, 150, 50);
+
+        jButton4.setBackground(new java.awt.Color(204, 204, 255));
+        jButton4.setForeground(new java.awt.Color(255, 255, 255));
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/supprimer-icone-7248-32.png"))); // NOI18N
+        jButton4.setText("Annuler");
+        jButton4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton4MouseClicked(evt);
+            }
+        });
+        panel1.add(jButton4);
+        jButton4.setBounds(550, 360, 150, 50);
+
+        rech.setText("Recherche par cin");
+        rech.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                rechMouseClicked(evt);
+            }
+        });
+        panel1.add(rech);
+        rech.setBounds(30, 440, 150, 40);
+
+        jButton2.setBackground(new java.awt.Color(204, 204, 255));
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/recherche-icone-4239-32.png"))); // NOI18N
+        jButton2.setText("chercher");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
+        panel1.add(jButton2);
+        jButton2.setBounds(210, 440, 150, 41);
+
+        etudiant_table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        etudiant_table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                etudiant_tableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(etudiant_table);
+
+        panel1.add(jScrollPane1);
+        jScrollPane1.setBounds(40, 20, 660, 310);
+
+        getContentPane().add(panel1);
+        panel1.setBounds(20, 40, 720, 510);
+
+        jLabel2.setText("Cin étudiant");
+        getContentPane().add(jLabel2);
+        jLabel2.setBounds(760, 134, 90, 30);
+
+        jLabel3.setText("Groupe");
+        getContentPane().add(jLabel3);
+        jLabel3.setBounds(760, 190, 80, 20);
+
+        jLabel4.setText("Nom");
+        getContentPane().add(jLabel4);
+        jLabel4.setBounds(760, 234, 70, 30);
+
+        jLabel5.setText("Prénom");
+        getContentPane().add(jLabel5);
+        jLabel5.setBounds(760, 284, 80, 30);
+
+        jLabel6.setText("Date naissance");
+        getContentPane().add(jLabel6);
+        jLabel6.setBounds(760, 344, 100, 20);
+
+        jLabel7.setText("Niveau d'étude");
+        getContentPane().add(jLabel7);
+        jLabel7.setBounds(760, 384, 100, 30);
+
+        jLabel8.setText("E-mail");
+        getContentPane().add(jLabel8);
+        jLabel8.setBounds(760, 440, 80, 20);
+
+        jLabel9.setText("Num téléphone");
+        getContentPane().add(jLabel9);
+        jLabel9.setBounds(760, 484, 100, 30);
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/a_p.jpg"))); // NOI18N
+        getContentPane().add(jLabel1);
+        jLabel1.setBounds(-300, 0, 1410, 720);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+        ajout_etudiant();
+    }//GEN-LAST:event_jButton1MouseClicked
+
+    private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked
+        // TODO add your handling code here:
+        modifier_etudiant();
+    }//GEN-LAST:event_jButton5MouseClicked
+
+    private void etudiant_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_etudiant_tableMouseClicked
+        // TODO add your handling code here:
+
+      try{
+
+           int row=etudiant_table.getSelectedRow();
+           String ID=(etudiant_table.getModel().getValueAt(row, 0).toString());
+           int id ;
+           id=Integer.parseInt(ID);
+
+	    		PreparedStatement pstmt1 = conn.prepareStatement("select * from etudiant where cin_etudiant= '"+id+"' ");
+
+          rs = pstmt1.executeQuery();
+
+
+while (rs.next())
+{
+
+int cine=rs.getInt("cin_etudiant") ;
+cin.setText(Integer.toString(cine));
+Date d1=rs.getDate("date_naiss");
+
+String nome=rs.getString("nom");
+String prenome=rs.getString("prenom");
+String niv=rs.getString("niveau");
+String maile=rs.getString("mail");
+int tel=rs.getInt("num_tel");
+num_tel.setText(Integer.toString(tel));
+nom.setText(nome);
+prenom.setText(prenome);
+mail.setText(maile);
+niveau.setText(niv);
+datenaiss.setDate(d1);
+
+
+
+
+}
+
+
+	    }
+	    	catch(Exception c){
+	    		System.out.println(c.getMessage());
+
+	    	}
+    }//GEN-LAST:event_etudiant_tableMouseClicked
+
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+        // TODO add your handling code here:
+         int c=JOptionPane.showConfirmDialog(null,"Voulez vous vraiment supprimer?"," supprime",JOptionPane.YES_NO_OPTION);
+        if(c==0){
+        try{
+
+           int row=etudiant_table.getSelectedRow();
+           String CINF=(etudiant_table.getModel().getValueAt(row, 0).toString());
+           int cine ;
+           cine=Integer.parseInt(CINF);
+
+	    		PreparedStatement pstmt1 = conn.prepareStatement("delete  from etudiant where cin_etudiant= '"+cine+"' ");
+
+         int resultat= pstmt1.executeUpdate();
+
+JOptionPane.showMessageDialog(null,"suppression éffectuer avec succes");
+
+}
+
+
+	    	catch(Exception E){
+	    		System.out.println(E.getMessage());
+
+	    	}}
+         update_etudiant ();
+
+annuler();
+    }//GEN-LAST:event_jButton3MouseClicked
+
+    private void cinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cinMouseClicked
+        // TODO add your handling code here:
+        cin.setText("");
+    }//GEN-LAST:event_cinMouseClicked
+
+    private void nomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nomMouseClicked
+        // TODO add your handling code here:
+        nom.setText("");
+    }//GEN-LAST:event_nomMouseClicked
+
+    private void prenomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prenomMouseClicked
+        // TODO add your handling code here:
+        prenom.setText("");
+    }//GEN-LAST:event_prenomMouseClicked
+
+    private void niveauMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_niveauMouseClicked
+        // TODO add your handling code here:
+        niveau.setText("");
+    }//GEN-LAST:event_niveauMouseClicked
+
+    private void mailMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mailMouseClicked
+        // TODO add your handling code here:
+        mail.setText("");
+    }//GEN-LAST:event_mailMouseClicked
+
+    private void num_telMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_num_telMouseClicked
+        // TODO add your handling code here:
+        num_tel.setText("");
+    }//GEN-LAST:event_num_telMouseClicked
+
+    private void jButton4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseClicked
+        // TODO add your handling code here:
+        annuler();
+    }//GEN-LAST:event_jButton4MouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        // TODO add your handling code here:
+        chercher_etudiant();
+    }//GEN-LAST:event_jButton2MouseClicked
+
+    private void rechMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rechMouseClicked
+        // TODO add your handling code here:
+        rech.setText("");
+    }//GEN-LAST:event_rechMouseClicked
+
+    private void cinKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cinKeyTyped
+        // TODO add your handling code here:
+          char c=evt.getKeyChar();
+        if(!(Character.isDigit(c) || c==KeyEvent.VK_PERIOD || c==KeyEvent.VK_BACK_SPACE ))
+        {
+          JOptionPane.showMessageDialog(null,"type non valide");
+        }
+    }//GEN-LAST:event_cinKeyTyped
+
+    private void nomKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomKeyTyped
+        // TODO add your handling code here:
+         char c=evt.getKeyChar();
+        if(!(Character.isAlphabetic(c) || c==KeyEvent.VK_PERIOD || c==KeyEvent.VK_SPACE  || c==KeyEvent.VK_BACK_SPACE ))
+        {
+          JOptionPane.showMessageDialog(null,"type non valide");
+        }
+    }//GEN-LAST:event_nomKeyTyped
+
+    private void prenomKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_prenomKeyTyped
+        // TODO add your handling code here:
+         char c=evt.getKeyChar();
+        if(!(Character.isAlphabetic(c) ||Character.isDigit(c)|| c==KeyEvent.VK_PERIOD || c==KeyEvent.VK_SPACE  || c==KeyEvent.VK_BACK_SPACE ))
+        {
+          JOptionPane.showMessageDialog(null,"type non valide");
+        }
+    }//GEN-LAST:event_prenomKeyTyped
+
+    private void niveauKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_niveauKeyTyped
+        // TODO add your handling code here:
+         char c=evt.getKeyChar();
+        if(!(Character.isAlphabetic(c) || c==KeyEvent.VK_PERIOD || c==KeyEvent.VK_SPACE  || c==KeyEvent.VK_BACK_SPACE ))
+        {
+          JOptionPane.showMessageDialog(null,"type non valide");
+        }
+    }//GEN-LAST:event_niveauKeyTyped
+
+    private void num_telKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_num_telKeyTyped
+        // TODO add your handling code here:
+         char c=evt.getKeyChar();
+        if(!(Character.isDigit(c) || c==KeyEvent.VK_PERIOD || c==KeyEvent.VK_BACK_SPACE ))
+        {
+          JOptionPane.showMessageDialog(null,"type non valide");
+        }
+    }//GEN-LAST:event_num_telKeyTyped
+
+    /**
+    * @param args the command line arguments
+    */
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Etudiant().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField cin;
+    private com.toedter.calendar.JDateChooser datenaiss;
+    private javax.swing.JTable etudiant_table;
+    private javax.swing.JComboBox groupe;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField mail;
+    private javax.swing.JTextField niveau;
+    private javax.swing.JTextField nom;
+    private javax.swing.JTextField num_tel;
+    private java.awt.Panel panel1;
+    private javax.swing.JTextField prenom;
+    private javax.swing.JTextField rech;
+    // End of variables declaration//GEN-END:variables
+
+}
